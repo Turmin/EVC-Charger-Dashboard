@@ -46,11 +46,11 @@ header('Cache-Control: no-cache, must-revalidate');
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Kaak Charger Status</title>
-<link rel="icon" type="image/x-icon" href="static/img/icons/favicon.ico?v=20260928b">
-<link rel="icon" type="image/png" sizes="32x32" href="static/img/icons/favicon-32x32.png?v=20260928b">
-<link rel="icon" type="image/png" sizes="16x16" href="static/img/icons/favicon-16x16.png?v=20260928b">
-<link rel="apple-touch-icon" sizes="180x180" href="static/img/icons/apple-touch-icon.png?v=20260928b">
-<link rel="manifest" href="static/img/icons/site.webmanifest?v=20260928b">
+<link rel="icon" type="image/x-icon" href="static/img/icons/favicon.ico?v=20261103">
+<link rel="icon" type="image/png" sizes="32x32" href="static/img/icons/favicon-32x32.png?v=20261103">
+<link rel="icon" type="image/png" sizes="16x16" href="static/img/icons/favicon-16x16.png?v=20261103">
+<link rel="apple-touch-icon" sizes="180x180" href="static/img/icons/apple-touch-icon.png?v=20261103">
+<link rel="manifest" href="static/img/icons/site.webmanifest?v=20261103">
 <link rel="stylesheet" href="static/css/app.css?v=<?=filemtime(__DIR__ . '/static/css/app.css')?>"><script src="static/js/app.js?v=<?=filemtime(__DIR__ . '/static/js/app.js')?>" defer></script>
 </head>
 <body>

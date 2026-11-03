@@ -115,14 +115,16 @@
     return 'unknown';
   }
 
-  function toast(message, isError, persistent) {
+  function toast(message, isError, statusChange) {
+    var duration = statusChange ? 30 * 60 * 1000 : 10000;
     var node = document.createElement('div');
-    node.className = 'toast' + (isError ? ' error' : '') + (persistent ? ' persistent' : '');
+    node.className = 'toast' + (isError ? ' error' : '');
+    node.style.setProperty('--toast-duration', duration + 'ms');
     node.setAttribute('role', isError ? 'alert' : 'status');
     var icon = document.createElement('span');
     icon.className = 'toast-icon';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = isError ? '!' : persistent ? '↗' : '✓';
+    icon.textContent = isError ? '!' : statusChange ? '↗' : '✓';
     node.appendChild(icon);
     var label = document.createElement('span');
     label.textContent = message;
@@ -134,7 +136,7 @@
     close.onclick = function () { node.remove(); };
     node.appendChild(close);
     document.getElementById('toasts').appendChild(node);
-    if (!persistent) setTimeout(function () { node.remove(); }, 10000);
+    setTimeout(function () { node.remove(); }, duration);
   }
 
   function select(id) {
@@ -179,9 +181,14 @@
     }).sort(function (a, b) {
       return statusOrder[a.status] - statusOrder[b.status] || a.index - b.index;
     });
-    document.getElementById('count-available').textContent = String(displayChargers.filter(function (item) { return item.status === 'available'; }).length);
-    document.getElementById('count-total').textContent = String(chargers.length);
-    displayChargers.forEach(function (item) {
+    var publicChargers = displayChargers.filter(function (item) { return item.charger.reserved !== true; });
+    var reservedChargers = displayChargers.filter(function (item) { return item.charger.reserved === true; });
+    function availableCount(items) {
+      return items.filter(function (item) { return item.status === 'available'; }).length;
+    }
+    document.getElementById('count-available').textContent = String(availableCount(publicChargers));
+    document.getElementById('count-total').textContent = String(publicChargers.length);
+    function addCharger(item) {
       var charger = item.charger;
       var id = String(charger.qr_code || item.index);
       var status = item.status;
@@ -230,7 +237,19 @@
         marker.onclick = function () { select(id); };
         markers.appendChild(marker);
       }
-    });
+    }
+    publicChargers.forEach(addCharger);
+    if (reservedChargers.length) {
+      var section = document.createElement('div');
+      section.className = 'list-section';
+      var heading = document.createElement('h3');
+      heading.textContent = 'Reserved';
+      var summary = document.createElement('small');
+      summary.textContent = availableCount(reservedChargers) + ' / ' + reservedChargers.length + ' available';
+      section.appendChild(heading); section.appendChild(summary);
+      list.appendChild(section);
+      reservedChargers.forEach(addCharger);
+    }
     if (state.selected) select(state.selected);
     updated.textContent = 'Updated ' + new Date(latestUpdate || Date.now()).toLocaleString();
   }
@@ -318,6 +337,27 @@
   });
   loadLimit();
   setInterval(updateButton, 1000);
+  /* Toast preview: uncomment this block to enable ?toast-test=1.
+  if (new URLSearchParams(window.location.search).get('toast-test') === '1') {
+    var toastTest = document.createElement('button');
+    var toastTestIndex = 0;
+    toastTest.type = 'button';
+    toastTest.className = 'primary';
+    toastTest.textContent = 'Test toast';
+    toastTest.onclick = function () {
+      var example = toastTestIndex++ % 3;
+      if (example === 0) {
+        toast('Charger statuses refreshed.', false);
+      } else if (example === 1) {
+        toast('Example error: charger statuses could not be refreshed.', true);
+      } else {
+        var chargerName = list.querySelector('.charger-name');
+        toast((chargerName ? chargerName.textContent : 'Example charger') + ': available → occupied', false, true);
+      }
+    };
+    document.querySelector('footer').appendChild(toastTest);
+  }
+  */
   if (new URLSearchParams(window.location.search).get("coordinates") === "1") {
     var map = document.querySelector(".map");
     var image = map.querySelector("img");
