@@ -1,4 +1,4 @@
-# Kaak Charger Status
+# EVC Charger Dashboard
 
 Run locally from this directory:
 
