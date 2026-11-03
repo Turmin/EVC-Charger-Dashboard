@@ -181,9 +181,14 @@
     }).sort(function (a, b) {
       return statusOrder[a.status] - statusOrder[b.status] || a.index - b.index;
     });
-    document.getElementById('count-available').textContent = String(displayChargers.filter(function (item) { return item.status === 'available'; }).length);
-    document.getElementById('count-total').textContent = String(chargers.length);
-    displayChargers.forEach(function (item) {
+    var publicChargers = displayChargers.filter(function (item) { return item.charger.reserved !== true; });
+    var reservedChargers = displayChargers.filter(function (item) { return item.charger.reserved === true; });
+    function availableCount(items) {
+      return items.filter(function (item) { return item.status === 'available'; }).length;
+    }
+    document.getElementById('count-available').textContent = String(availableCount(publicChargers));
+    document.getElementById('count-total').textContent = String(publicChargers.length);
+    function addCharger(item) {
       var charger = item.charger;
       var id = String(charger.qr_code || item.index);
       var status = item.status;
@@ -232,7 +237,19 @@
         marker.onclick = function () { select(id); };
         markers.appendChild(marker);
       }
-    });
+    }
+    publicChargers.forEach(addCharger);
+    if (reservedChargers.length) {
+      var section = document.createElement('div');
+      section.className = 'list-section';
+      var heading = document.createElement('h3');
+      heading.textContent = 'Reserved';
+      var summary = document.createElement('small');
+      summary.textContent = availableCount(reservedChargers) + ' / ' + reservedChargers.length + ' available';
+      section.appendChild(heading); section.appendChild(summary);
+      list.appendChild(section);
+      reservedChargers.forEach(addCharger);
+    }
     if (state.selected) select(state.selected);
     updated.textContent = 'Updated ' + new Date(latestUpdate || Date.now()).toLocaleString();
   }
